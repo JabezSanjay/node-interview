@@ -6,6 +6,8 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("dotenv").config();
 const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/user");
+const cartRoutes = require("./routes/cart");
 
 //Middlewares
 app.use(bodyParser.json());
@@ -25,6 +27,7 @@ mongoose
 
 //Routes
 app.use("/api", authRoutes);
+app.use("/api", cartRoutes);
 
 //Port
 const port = process.env.PORT || 8000;
