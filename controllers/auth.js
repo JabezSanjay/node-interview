@@ -57,12 +57,18 @@ exports.register = (req, res) => {
             }
             //save to the DB
             user.save((err, user) => {
+              if (err) {
+                return res.status(400).json({
+                  error: "User already exists!",
+                });
+              }
               if (err || s3Err) {
                 console.log(err);
                 res.status(400).json({
                   error: "New user is not added!",
                 });
               }
+
               res.json(user);
             });
           });

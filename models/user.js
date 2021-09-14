@@ -16,6 +16,7 @@ const UserSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "Email is requried!"],
+      unique: [true, "Email is already taken!"],
     },
     dateOfBirth: Date,
     encrypted_password: {
