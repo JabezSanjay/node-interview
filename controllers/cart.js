@@ -51,6 +51,11 @@ exports.updateCart = (req, res) => {
 
 exports.deleteCart = (req, res) => {
   const cart = req.cart;
+  if (cart === null) {
+    return res.status(400).json({
+      error: "Cart is empty!",
+    });
+  }
   cart.remove((error, deletedCart) => {
     if (error) {
       return res.status(400).json({
