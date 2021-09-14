@@ -8,7 +8,11 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: [true, "Name is required!"],
     },
-
+    photo: {
+      url: String,
+      name: String,
+      default: "",
+    },
     email: {
       type: String,
       required: [true, "Email is requried!"],
@@ -20,10 +24,6 @@ const UserSchema = new mongoose.Schema(
     },
     salt: String,
     cartItems: {
-      type: Array,
-      default: [],
-    },
-    favourites: {
       type: Array,
       default: [],
     },

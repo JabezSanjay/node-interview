@@ -1,28 +1,90 @@
 const User = require("../models/user");
-const { validationResult } = require("express-validator");
+const formidable = require("formidable");
+const _ = require("lodash");
+const fs = require("fs");
+const AWS = require("aws-sdk");
 const jwt = require("jsonwebtoken");
 const expressJwt = require("express-jwt");
+const { validationResult } = require("express-validator");
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
 
 exports.register = (req, res) => {
-  const errors = validationResult(req);
+  let form = new formidable.IncomingForm();
+  form.keepExtensions = true;
 
-  if (!errors.isEmpty()) {
-    return res.status(422).json({
-      error: errors.array()[0].msg,
-    });
-  }
-  const user = new User(req.body);
-  user.save((error, user) => {
-    if (error) {
+  form.parse(req, (err, fields, file) => {
+    if (err) {
       return res.status(400).json({
-        error: "User already exists!",
+        error: "There is a problem with the image!",
       });
     }
-    res.json({
-      name: user.name,
-      email: user.email,
-      id: user._id,
-    });
+    //destructure the fields
+    const { name, email, password } = fields;
+
+    if (!name || !email || !password) {
+      return res.status(422).json({
+        error: "Please enter the required fields!",
+      });
+    }
+    const user = new User(fields);
+
+    const uploadFile = () => {
+      if (file.photo) {
+        fs.readFile(file.photo.path, (err, data) => {
+          if (err) throw err;
+
+          const params = {
+            Bucket: "ecommerce-v2",
+            Key: `${file.photo.name}`,
+            Body: data,
+            ContentType: file.photo.type,
+            ACL: "public-read",
+          };
+          s3.upload(params, function (s3Err, data) {
+            if (s3Err) throw s3Err;
+
+            user.photo.url = data.Location;
+            user.photo.name = data.Key;
+
+            if (user.photo.url === undefined) {
+              return res.status(400).json({
+                error: "Please include the required fields",
+              });
+            }
+            //save to the DB
+            user.save((err, user) => {
+              if (err || s3Err) {
+                console.log(err);
+                res.status(400).json({
+                  error: "New user is not added!",
+                });
+              }
+              res.json(user);
+            });
+          });
+        });
+      } else {
+        //save to the DB
+        user.save((err, user) => {
+          if (user.url === undefined) {
+            return res.status(400).json({
+              error: "Please include the required fields",
+            });
+          }
+          if (err) {
+            res.status(400).json({
+              error: "New user is not added!",
+            });
+          }
+          res.json(user);
+        });
+      }
+    };
+    uploadFile();
   });
 };
 

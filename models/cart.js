@@ -4,9 +4,6 @@ const { ObjectId } = mongoose.Schema;
 const productSchema = mongoose.Schema(
   {
     cartItems: [],
-    profileImage: {
-      type: String,
-    },
     cartDateTime: {
       type: Date,
     },
