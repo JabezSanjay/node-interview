@@ -14,22 +14,12 @@ const { getCartById } = require("../controllers/cart");
 router.param("userId", getUserById);
 router.param("cartId", getCartById);
 
-router.post("/cart/create/:userId", isSignedIn, isAuthenticated, createCart);
+router.post("/cart/create", isSignedIn, isAuthenticated, createCart);
 
-router.get("/cart/:cartId/:userId", isSignedIn, isAuthenticated, getCart);
+router.get("/cart/:cartId", isSignedIn, isAuthenticated, getCart);
 
-router.put(
-  "/cart/update/:cartId/:userId",
-  isSignedIn,
-  isAuthenticated,
-  updateCart
-);
+router.put("/cart/update/:cartId", isSignedIn, isAuthenticated, updateCart);
 
-router.delete(
-  "/cart/delete/:cartId/:userId",
-  isSignedIn,
-  isAuthenticated,
-  deleteCart
-);
+router.delete("/cart/delete/:cartId", isSignedIn, isAuthenticated, deleteCart);
 
 module.exports = router;
