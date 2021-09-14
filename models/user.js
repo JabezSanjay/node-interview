@@ -23,10 +23,6 @@ const UserSchema = new mongoose.Schema(
       required: [true, "Password is requried!"],
     },
     salt: String,
-    cartItems: {
-      type: Array,
-      default: [],
-    },
   },
   { timestamps: true }
 );
